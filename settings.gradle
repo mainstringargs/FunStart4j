@@ -15,4 +15,4 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'funstart4j'
+rootProject.name = 'FunStart4J'
