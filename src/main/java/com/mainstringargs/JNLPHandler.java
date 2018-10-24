@@ -51,9 +51,13 @@ public class JNLPHandler {
 		parseJNLP(jnlpUri);
 	}
 
-	public void parseJNLP(URI uri) {
+	public void parseJNLP(URI jnlpUri) {
 
-		System.err.println("Parsing... " + uri);
+		System.err.println("Parsing... " + jnlpUri);
+
+		String parentUri = getParentUri(jnlpUri);
+
+		System.out.println("Parent URI " + parentUri);
 
 		JAXBContext jc = null;
 		try {
@@ -73,7 +77,7 @@ public class JNLPHandler {
 
 		Jnlp data = null;
 		try {
-			data = (Jnlp) um.unmarshal(uri.toURL());
+			data = (Jnlp) um.unmarshal(jnlpUri.toURL());
 		} catch (JAXBException | MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -104,9 +108,9 @@ public class JNLPHandler {
 					System.out.println(jarRef.getDownload() + " " + jarRef.getHref() + " " + jarRef.getMain() + " "
 							+ jarRef.getPart() + " " + jarRef.getSize() + " " + jarRef.getVersion());
 
-					URL url = getURLReference(data.getCodebase(), jarRef.getHref());
+					URI uri = getURIReference(data.getCodebase(), parentUri, jarRef.getHref());
 
-					Downloader dLoader = new Downloader(url, folderLocation + File.separator + getFileNameFromUrl(url));
+					Downloader dLoader = new Downloader(uri, folderLocation + File.separator + getFileNameFromUri(uri));
 
 					System.out.println("Download " + dLoader.getFile() + " " + new Date(dLoader.getLastModified()) + " "
 							+ dLoader.getFileSize());
@@ -130,14 +134,19 @@ public class JNLPHandler {
 					System.out.println(nativeLibRef.getDownload() + " " + nativeLibRef.getHref() + " "
 							+ nativeLibRef.getPart() + " " + nativeLibRef.getSize() + " " + nativeLibRef.getVersion());
 
-					URL url = getURLReference(data.getCodebase(), nativeLibRef.getHref());
+					URI uri = getURIReference(data.getCodebase(), parentUri, nativeLibRef.getHref());
 
-					Downloader dLoader = new Downloader(url, folderLocation + File.separator + getFileNameFromUrl(url));
+					try {
+						Downloader dLoader = new Downloader(uri,
+								folderLocation + File.separator + getFileNameFromUri(uri));
 
-					System.out.println("Download " + dLoader.getFile() + " " + new Date(dLoader.getLastModified()) + " "
-							+ dLoader.getFileSize());
+						System.out.println("Download " + dLoader.getFile() + " " + new Date(dLoader.getLastModified())
+								+ " " + dLoader.getFileSize());
 
-					classPathJars.add(dLoader.getFile());
+						classPathJars.add(dLoader.getFile());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 
 				} else if (libRef instanceof Property) {
 					Property propertyRef = (Property) libRef;
@@ -200,29 +209,41 @@ public class JNLPHandler {
 		}
 	}
 
-	public static URL getURLReference(String codeBase, String fileName) {
-		String fullUrl = codeBase + "/" + fileName;
+	public static URI getURIReference(String codeBase, String parentRef, String fileName) {
+		String fullUri = codeBase + "/" + fileName;
 
-		if (fileName.toUpperCase().startsWith("HTTP")) {
-			fullUrl = fileName;
+		if (codeBase.toUpperCase().startsWith("HTTP")) {
+			// no-op
+		} else if (fileName.toUpperCase().startsWith("HTTP")) {
+			fullUri = fileName;
+		} else if (parentRef.toUpperCase().startsWith("HTTP")) {
+			fullUri = parentRef + "/" + fileName;
 		}
 
-		URL theUrl = null;
+		URI theUri = null;
+
 		try {
-			theUrl = new URL(fullUrl);
-		} catch (MalformedURLException e) {
+			theUri = new URI(fullUri);
+		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		return theUrl;
+		return theUri.normalize();
 
 	}
 
-	public static String getFileNameFromUrl(URL url) {
+	public static String getFileNameFromUri(URI uri) {
 
-		String urlString = url.toString();
+		String uriString = uri.toString();
 
-		return urlString.substring(urlString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
+		return uriString.substring(uriString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
 	}
+
+	private String getParentUri(URI uri) {
+		String uriString = uri.toString();
+
+		return uriString.substring(0, uriString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
+	}
+
 }

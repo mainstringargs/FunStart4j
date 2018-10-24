@@ -14,7 +14,7 @@ public class FunStart4J {
 
 		URL website = null;
 		try {
-			website = new URL("https://www.wurmonline.com/client/wurmclient.jnlp");
+			website = new URL("https://worldwind.arc.nasa.gov/java/latest/webstart/AirspaceBuilder.jnlp");
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

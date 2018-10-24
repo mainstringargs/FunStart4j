@@ -5,17 +5,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLConnection;
 
 public class Downloader {
 
-	private URL hostedFileUrl;
+	private URI hostedFileUrl;
 	private String downloadedFile;
 	private File fileReference;
 
-	public Downloader(URL hostedFileUrl, String downloadedFile) {
-		this.hostedFileUrl = hostedFileUrl;
+	public Downloader(URI url, String downloadedFile) {
+		this.hostedFileUrl = url;
 		this.downloadedFile = downloadedFile;
 	}
 
@@ -24,7 +24,8 @@ public class Downloader {
 		if (this.fileReference == null) {
 			File file = null;
 			try {
-				URLConnection connection = hostedFileUrl.openConnection();
+				System.err.println("Downloading " +hostedFileUrl);
+				URLConnection connection = hostedFileUrl.toURL().openConnection();
 //				connection.setRequestProperty("User-Agent",
 //						"JNLP/1.7.0 javaws/11.181.2.13 (internal) Java/1.8.0_181");
 
@@ -59,7 +60,7 @@ public class Downloader {
 	public int getFileSize() {
 		URLConnection conn = null;
 		try {
-			conn = hostedFileUrl.openConnection();
+			conn = hostedFileUrl.toURL().openConnection();
 			if (conn instanceof HttpURLConnection) {
 				((HttpURLConnection) conn).setRequestMethod("HEAD");
 			}
@@ -77,7 +78,7 @@ public class Downloader {
 	public long getLastModified() {
 		URLConnection conn = null;
 		try {
-			conn = hostedFileUrl.openConnection();
+			conn = hostedFileUrl.toURL().openConnection();
 			if (conn instanceof HttpURLConnection) {
 				((HttpURLConnection) conn).setRequestMethod("HEAD");
 			}
