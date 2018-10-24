@@ -122,12 +122,7 @@ public class JNLPHandler {
 					System.out.println(extensionRef.getHref() + " " + extensionRef.getName() + " "
 							+ extensionRef.getVersion() + " " + extensionRef.getExtDownload());
 
-					try {
-						parseJNLP(new URI(data.getCodebase() + "/" + extensionRef.getHref()));
-					} catch (URISyntaxException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					parseJNLP(getURIReference(data.getCodebase(), parentUri, extensionRef.getHref()));
 
 				} else if (libRef instanceof Nativelib) {
 					Nativelib nativeLibRef = (Nativelib) libRef;
