@@ -13,6 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -33,10 +38,11 @@ public class JNLPHandler {
 	private URI jnlpUri;
 	private String folderLocation;
 
-	private LinkedHashSet<File> classPathJars = new LinkedHashSet<>();
+	private Set<File> classPathJars = java.util.Collections.synchronizedSet(new LinkedHashSet<>());
 	private String mainMethod = "";
 	private LinkedHashMap<String, String> properties = new LinkedHashMap<>();
 	private List<Argument> arguments = new ArrayList<Argument>();
+	private ExecutorService executor = Executors.newCachedThreadPool();
 
 	public JNLPHandler(URI jnlpUri) {
 		this.jnlpUri = jnlpUri;
@@ -94,6 +100,18 @@ public class JNLPHandler {
 		}
 
 		parseJNLP(jnlpUri);
+
+		executor.shutdownNow();
+
+		System.out.println("All work submitted; waiting for finish.");
+		try {
+			executor.awaitTermination(10, TimeUnit.HOURS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println("Finished.");
 	}
 
 	public void parseJNLP(URI jnlpUri) {
@@ -157,9 +175,13 @@ public class JNLPHandler {
 
 					Downloader dLoader = new Downloader(uri, folderLocation + File.separator + getFileNameFromUri(uri));
 
-					System.out.println("Download " + dLoader.getFile() + " " + new Date(dLoader.getLastModified()) + " "
-							+ dLoader.getFileSize());
-					classPathJars.add(dLoader.getFile());
+					executor.execute(new Runnable() {
+
+						@Override
+						public void run() {
+							classPathJars.add(dLoader.getFile());
+						}
+					});
 
 				} else if (libRef instanceof Extension) {
 					Extension extensionRef = (Extension) libRef;
@@ -180,10 +202,13 @@ public class JNLPHandler {
 						Downloader dLoader = new Downloader(uri,
 								folderLocation + File.separator + getFileNameFromUri(uri));
 
-						System.out.println("Download " + dLoader.getFile() + " " + new Date(dLoader.getLastModified())
-								+ " " + dLoader.getFileSize());
+						executor.execute(new Runnable() {
+							@Override
+							public void run() {
+								classPathJars.add(dLoader.getFile());
+							}
+						});
 
-						classPathJars.add(dLoader.getFile());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

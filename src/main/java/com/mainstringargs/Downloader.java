@@ -30,8 +30,8 @@ public class Downloader {
 			long newFileSize = getFileSize();
 			long newFileModified = getLastModified();
 
-			System.out.println(downloadedFile + " " + existingFileSize + ":" + newFileSize + " "
-					+ existingFileModified + ":" + newFileModified);
+			System.out.println(downloadedFile + " " + existingFileSize + ":" + newFileSize + " " + existingFileModified
+					+ ":" + newFileModified);
 
 			if (existingFileSize == newFileSize && existingFileModified == newFileModified) {
 				System.out.println(downloadedFile + " is cached, no need to re-download");
@@ -66,6 +66,8 @@ public class Downloader {
 
 			file.setLastModified(getLastModified());
 			this.fileReference = file;
+
+			System.err.println("Download Finished " + hostedFileUrl + " to " + this.fileReference.getAbsolutePath());
 
 		}
 
