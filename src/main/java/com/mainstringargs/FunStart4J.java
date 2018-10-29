@@ -19,6 +19,7 @@ public class FunStart4J {
 
 		try {
 			JNLPHandler jnlpHandler = new JNLPHandler(website.toURI());
+			
 			jnlpHandler.parseJNLP();
 			
 			jnlpHandler.runApplication();

@@ -31,7 +31,7 @@ import com.mainstringargs.schema.Resources;
 public class JNLPHandler {
 
 	private URI jnlpUri;
-	private String folderLocation = "lib";
+	private String folderLocation;
 
 	private LinkedHashSet<File> classPathJars = new LinkedHashSet<>();
 	private String mainMethod = "";
@@ -73,7 +73,7 @@ public class JNLPHandler {
 			e.printStackTrace();
 		}
 
-		if (folderLocation == null || !folderLocation.isEmpty()) {
+		if (folderLocation == null || folderLocation.isEmpty()) {
 			for (Information information : data.getInformation()) {
 				if (information.getTitle() != null && !information.getTitle().isEmpty()) {
 					String scrubbedTitle = information.getTitle().replaceAll("[^A-Za-z0-9]", "").replaceAll("\\s", "");
@@ -86,7 +86,7 @@ public class JNLPHandler {
 			}
 		}
 
-		if (folderLocation == null || !folderLocation.isEmpty()) {
+		if (folderLocation == null || folderLocation.isEmpty()) {
 			folderLocation = data.hashCode() + "";
 
 			File folder = new File(folderLocation);

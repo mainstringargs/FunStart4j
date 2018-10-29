@@ -21,16 +21,31 @@ public class Downloader {
 
 	public File getFile() {
 
+		File file = new File(downloadedFile);
+
+		if (file.exists()) {
+			long existingFileSize = file.length();
+			long existingFileModified = file.lastModified();
+
+			long newFileSize = getFileSize();
+			long newFileModified = getLastModified();
+
+			System.out.println(downloadedFile + " " + existingFileSize + ":" + newFileSize + " "
+					+ existingFileModified + ":" + newFileModified);
+
+			if (existingFileSize == newFileSize && existingFileModified == newFileModified) {
+				System.out.println(downloadedFile + " is cached, no need to re-download");
+				return file;
+			}
+		}
+
 		if (this.fileReference == null) {
-			File file = null;
 			try {
-				System.err.println("Downloading " +hostedFileUrl);
+				System.err.println("Downloading " + hostedFileUrl);
 				URLConnection connection = hostedFileUrl.toURL().openConnection();
-//				connection.setRequestProperty("User-Agent",
-//						"JNLP/1.7.0 javaws/11.181.2.13 (internal) Java/1.8.0_181");
 
 				InputStream in = connection.getInputStream();
-				file = new File(downloadedFile);
+
 				FileOutputStream fos = new FileOutputStream(downloadedFile);
 				byte[] buf = new byte[512];
 				while (true) {
@@ -57,7 +72,7 @@ public class Downloader {
 		return this.fileReference;
 	}
 
-	public int getFileSize() {
+	public long getFileSize() {
 		URLConnection conn = null;
 		try {
 			conn = hostedFileUrl.toURL().openConnection();
