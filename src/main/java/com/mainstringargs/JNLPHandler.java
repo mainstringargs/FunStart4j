@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -22,6 +21,7 @@ import javax.xml.bind.Unmarshaller;
 import com.mainstringargs.schema.ApplicationDesc;
 import com.mainstringargs.schema.Argument;
 import com.mainstringargs.schema.Extension;
+import com.mainstringargs.schema.Information;
 import com.mainstringargs.schema.Jar;
 import com.mainstringargs.schema.Jnlp;
 import com.mainstringargs.schema.Nativelib;
@@ -48,6 +48,51 @@ public class JNLPHandler {
 	}
 
 	public void parseJNLP() {
+
+		JAXBContext jc = null;
+		try {
+			jc = JAXBContext.newInstance(Jnlp.class);
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Unmarshaller um = null;
+		try {
+			um = jc.createUnmarshaller();
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Jnlp data = null;
+		try {
+			data = (Jnlp) um.unmarshal(jnlpUri.toURL());
+		} catch (JAXBException | MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (folderLocation == null || !folderLocation.isEmpty()) {
+			for (Information information : data.getInformation()) {
+				if (information.getTitle() != null && !information.getTitle().isEmpty()) {
+					String scrubbedTitle = information.getTitle().replaceAll("[^A-Za-z0-9]", "").replaceAll("\\s", "");
+					folderLocation = scrubbedTitle;
+
+					File folder = new File(folderLocation);
+					folder.mkdir();
+
+				}
+			}
+		}
+
+		if (folderLocation == null || !folderLocation.isEmpty()) {
+			folderLocation = data.hashCode() + "";
+
+			File folder = new File(folderLocation);
+			folder.mkdir();
+		}
+
 		parseJNLP(jnlpUri);
 	}
 

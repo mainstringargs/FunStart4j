@@ -9,9 +9,6 @@ public class FunStart4J {
 
 	public static void main(String[] args) {
 
-		File folder = new File("lib");
-		folder.mkdir();
-
 		URL website = null;
 		try {
 			website = new URL("https://worldwind.arc.nasa.gov/java/latest/webstart/AirspaceBuilder.jnlp");
@@ -21,7 +18,7 @@ public class FunStart4J {
 		}
 
 		try {
-			JNLPHandler jnlpHandler = new JNLPHandler(website.toURI(), folder.getAbsolutePath());
+			JNLPHandler jnlpHandler = new JNLPHandler(website.toURI());
 			jnlpHandler.parseJNLP();
 			
 			jnlpHandler.runApplication();
