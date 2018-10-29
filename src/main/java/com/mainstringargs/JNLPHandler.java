@@ -12,8 +12,10 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +40,7 @@ public class JNLPHandler {
 	private URI jnlpUri;
 	private String folderLocation;
 
-	private Set<File> classPathJars = java.util.Collections.synchronizedSet(new LinkedHashSet<>());
+	private Map<URI, File> classPathJars = new ConcurrentHashMap<>();
 	private String mainMethod = "";
 	private LinkedHashMap<String, String> properties = new LinkedHashMap<>();
 	private List<Argument> arguments = new ArrayList<Argument>();
@@ -179,7 +181,14 @@ public class JNLPHandler {
 
 						@Override
 						public void run() {
-							classPathJars.add(dLoader.getFile());
+
+							if (!classPathJars.containsKey(uri)) {
+								// placeholder until we get the real file
+								classPathJars.put(uri, new File("."));
+								File file = dLoader.getFile();
+								classPathJars.put(uri, file);
+							}
+
 						}
 					});
 
@@ -205,7 +214,12 @@ public class JNLPHandler {
 						executor.execute(new Runnable() {
 							@Override
 							public void run() {
-								classPathJars.add(dLoader.getFile());
+								if (!classPathJars.containsKey(uri)) {
+									// placeholder until we get the real file
+									classPathJars.put(uri, new File("."));
+									File file = dLoader.getFile();
+									classPathJars.put(uri, file);
+								}
 							}
 						});
 
@@ -231,7 +245,7 @@ public class JNLPHandler {
 	public void runApplication() {
 		String classpath = "";
 
-		for (File file : classPathJars) {
+		for (File file : classPathJars.values()) {
 			classpath += file.getAbsolutePath() + File.pathSeparator;
 		}
 
