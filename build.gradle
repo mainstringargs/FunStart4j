@@ -27,6 +27,7 @@ dependencies {
     
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.4'    
     compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.2.4'
+    
 }
 
 xjcGenerate {

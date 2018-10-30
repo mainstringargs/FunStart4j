@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FunStart4J {
+public class FunStart4j {
 
 	public static void main(String[] args) {
 
