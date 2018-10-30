@@ -8,15 +8,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -173,9 +169,10 @@ public class JNLPHandler {
 					System.out.println(jarRef.getDownload() + " " + jarRef.getHref() + " " + jarRef.getMain() + " "
 							+ jarRef.getPart() + " " + jarRef.getSize() + " " + jarRef.getVersion());
 
-					URI uri = getURIReference(data.getCodebase(), parentUri, jarRef.getHref());
+					final URI uri = getURIReference(data.getCodebase(), parentUri, jarRef.getHref());
 
-					Downloader dLoader = new Downloader(uri, folderLocation + File.separator + getFileNameFromUri(uri));
+					final Downloader dLoader = new Downloader(uri,
+							folderLocation + File.separator + getFileNameFromUri(uri));
 
 					executor.execute(new Runnable() {
 
@@ -205,10 +202,10 @@ public class JNLPHandler {
 					System.out.println(nativeLibRef.getDownload() + " " + nativeLibRef.getHref() + " "
 							+ nativeLibRef.getPart() + " " + nativeLibRef.getSize() + " " + nativeLibRef.getVersion());
 
-					URI uri = getURIReference(data.getCodebase(), parentUri, nativeLibRef.getHref());
+					final URI uri = getURIReference(data.getCodebase(), parentUri, nativeLibRef.getHref());
 
 					try {
-						Downloader dLoader = new Downloader(uri,
+						final Downloader dLoader = new Downloader(uri,
 								folderLocation + File.separator + getFileNameFromUri(uri));
 
 						executor.execute(new Runnable() {
@@ -242,7 +239,7 @@ public class JNLPHandler {
 
 	}
 
-	public void runApplication() {
+	public void runApplication(List<String> argumentsForJVM) {
 		String classpath = "";
 
 		for (File file : classPathJars.values()) {
@@ -259,6 +256,7 @@ public class JNLPHandler {
 		List<String> fullCommand = new ArrayList<>();
 		fullCommand.add("java");
 		fullCommand.addAll(passedInProps);
+		fullCommand.addAll(argumentsForJVM);
 		fullCommand.add("-classpath");
 		fullCommand.add(classpath);
 		fullCommand.add(mainMethod);
