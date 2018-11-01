@@ -182,7 +182,7 @@ public class JNLPHandler {
 							if (!classPathJars.containsKey(uri)) {
 								// placeholder until we get the real file
 								classPathJars.put(uri, new File("."));
-								File file = dLoader.getFile();
+								File file = dLoader.getFile(true);
 								classPathJars.put(uri, file);
 							}
 
@@ -214,7 +214,7 @@ public class JNLPHandler {
 								if (!classPathJars.containsKey(uri)) {
 									// placeholder until we get the real file
 									classPathJars.put(uri, new File("."));
-									File file = dLoader.getFile();
+									File file = dLoader.getFile(true);
 									classPathJars.put(uri, file);
 								}
 							}

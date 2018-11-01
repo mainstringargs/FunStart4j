@@ -19,16 +19,16 @@ public class Downloader {
 		this.downloadedFile = downloadedFile;
 	}
 
-	public File getFile() {
+	public File getFile(boolean retryIfFailed) {
 
 		File file = new File(downloadedFile);
+
+		long newFileSize = getFileSize();
+		long newFileModified = getLastModified();
 
 		if (file.exists()) {
 			long existingFileSize = file.length();
 			long existingFileModified = file.lastModified();
-
-			long newFileSize = getFileSize();
-			long newFileModified = getLastModified();
 
 			System.out.println(downloadedFile + " " + existingFileSize + ":" + newFileSize + " " + existingFileModified
 					+ ":" + newFileModified);
@@ -40,13 +40,18 @@ public class Downloader {
 		}
 
 		if (this.fileReference == null) {
+			URLConnection connection;
+
+			InputStream in = null;
+
+			FileOutputStream fos = null;
 			try {
 				System.err.println("Downloading " + hostedFileUrl);
-				URLConnection connection = hostedFileUrl.toURL().openConnection();
+				connection = hostedFileUrl.toURL().openConnection();
 
-				InputStream in = connection.getInputStream();
+				in = connection.getInputStream();
 
-				FileOutputStream fos = new FileOutputStream(downloadedFile);
+				fos = new FileOutputStream(downloadedFile);
 				byte[] buf = new byte[512];
 				while (true) {
 					int len = in.read(buf);
@@ -59,15 +64,46 @@ public class Downloader {
 				in.close();
 				fos.flush();
 				fos.close();
+
+				file.setLastModified(getLastModified());
+				this.fileReference = file;
+
+				System.err
+						.println("Download Finished " + hostedFileUrl + " to " + this.fileReference.getAbsolutePath());
+
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				if (fos != null) {
+					try {
+						fos.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+
+				if (retryIfFailed) {
+					// only retry once
+					getFile(false);
+				}
 			}
 
-			file.setLastModified(getLastModified());
-			this.fileReference = file;
-
-			System.err.println("Download Finished " + hostedFileUrl + " to " + this.fileReference.getAbsolutePath());
+			if (this.fileReference == null) {
+				// only retry once
+				getFile(false);
+			} else if (this.fileReference.length() != newFileSize) {
+				// only retry once
+				getFile(false);
+			}
 
 		}
 
