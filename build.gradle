@@ -34,3 +34,13 @@ xjcGenerate {
     source = fileTree('src/main/schema') { include '*.dtd' }
 	targetPackage = 'com.mainstringargs.schema'
 }
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.mainstringargs.FunStart4j'
+    }
+	
+	from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
