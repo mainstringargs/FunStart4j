@@ -8,8 +8,12 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Downloader {
 
+	private static Logger logger = LoggerFactory.getLogger(Downloader.class);
 	private URI hostedFileUrl;
 	private String downloadedFile;
 	private File fileReference;
@@ -30,11 +34,11 @@ public class Downloader {
 			long existingFileSize = file.length();
 			long existingFileModified = file.lastModified();
 
-			System.out.println(downloadedFile + " " + existingFileSize + ":" + newFileSize + " " + existingFileModified
-					+ ":" + newFileModified);
+			logger.info(downloadedFile + " " + existingFileSize + ":" + newFileSize + " " + existingFileModified + ":"
+					+ newFileModified);
 
 			if (existingFileSize == newFileSize && existingFileModified == newFileModified) {
-				System.out.println(downloadedFile + " is cached, no need to re-download");
+				logger.info(downloadedFile + " is cached, no need to re-download");
 				return file;
 			}
 		}
@@ -46,7 +50,7 @@ public class Downloader {
 
 			FileOutputStream fos = null;
 			try {
-				System.err.println("Downloading " + hostedFileUrl);
+				logger.info("Downloading " + hostedFileUrl);
 				connection = hostedFileUrl.toURL().openConnection();
 
 				in = connection.getInputStream();
@@ -68,26 +72,24 @@ public class Downloader {
 				file.setLastModified(getLastModified());
 				this.fileReference = file;
 
-				System.err
-						.println("Download Finished " + hostedFileUrl + " to " + this.fileReference.getAbsolutePath());
+				logger.info("Download Finished " + hostedFileUrl + " to " + this.fileReference.getAbsolutePath());
 
 			} catch (IOException e) {
-				e.printStackTrace();
+
+				logger.info("IOException", e);
 
 				if (in != null) {
 					try {
 						in.close();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						logger.info("IOException", e1);
 					}
 				}
 				if (fos != null) {
 					try {
 						fos.close();
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						logger.info("IOException", e1);
 					}
 				}
 

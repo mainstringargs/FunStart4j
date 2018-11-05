@@ -28,7 +28,7 @@ dependencies {
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.4'    
     compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.2.4'
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.25'
-    compile group: 'org.slf4j', name:'slf4j-simple', version: '1.7.25'
+    compile group: 'org.slf4j', name:'slf4j-log4j12', version: '1.7.25'
 }
 
 xjcGenerate {

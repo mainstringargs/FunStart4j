@@ -6,7 +6,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class FunStart4j {
+
+	private static Logger logger = LoggerFactory.getLogger(FunStart4j.class);
 
 	public static void main(String[] args) {
 
@@ -20,7 +25,7 @@ public class FunStart4j {
 			}
 		}
 
-		System.out.println("Found JVM Properties: " + argumentsForJVM);
+		logger.info("Found JVM Properties: " + argumentsForJVM);
 
 		URL website = null;
 		try {
@@ -31,19 +36,20 @@ public class FunStart4j {
 			}
 
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("Exception while creating URL", e);
 		}
 
 		try {
+
+			logger.info("Grabbing JNLP from: " + website.toURI());
+
 			JNLPHandler jnlpHandler = new JNLPHandler(website.toURI());
 
 			jnlpHandler.parseJNLP();
 
 			jnlpHandler.runApplication(argumentsForJVM);
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("Exception while creating URI", e);
 		}
 
 	}

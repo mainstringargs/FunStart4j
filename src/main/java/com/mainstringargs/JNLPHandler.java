@@ -21,6 +21,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mainstringargs.schema.ApplicationDesc;
 import com.mainstringargs.schema.Argument;
 import com.mainstringargs.schema.Extension;
@@ -33,6 +36,7 @@ import com.mainstringargs.schema.Resources;
 
 public class JNLPHandler {
 
+	private static Logger logger = LoggerFactory.getLogger(JNLPHandler.class);
 	private URI jnlpUri;
 	private String folderLocation;
 
@@ -57,24 +61,21 @@ public class JNLPHandler {
 		try {
 			jc = JAXBContext.newInstance(Jnlp.class);
 		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("JAXBException", e);
 		}
 
 		Unmarshaller um = null;
 		try {
 			um = jc.createUnmarshaller();
 		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("Exception creating Unmarshaller", e);
 		}
 
 		Jnlp data = null;
 		try {
 			data = (Jnlp) um.unmarshal(jnlpUri.toURL());
 		} catch (JAXBException | MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("Exception Unmarshalling", e);
 		}
 
 		if (folderLocation == null || folderLocation.isEmpty()) {
@@ -101,51 +102,47 @@ public class JNLPHandler {
 
 		executor.shutdownNow();
 
-		System.out.println("All work submitted; waiting for finish.");
+		logger.info("All work submitted; waiting for finish.");
 		try {
 			executor.awaitTermination(10, TimeUnit.HOURS);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("InterruptedException", e);
 		}
 
-		System.out.println("Finished.");
+		logger.info("Finished.");
 	}
 
 	public void parseJNLP(URI jnlpUri) {
 
-		System.err.println("Parsing... " + jnlpUri);
+		logger.info("Parsing... " + jnlpUri);
 
 		String parentUri = getParentUri(jnlpUri);
 
-		System.out.println("Parent URI " + parentUri);
+		logger.info("Parent URI " + parentUri);
 
 		JAXBContext jc = null;
 		try {
 			jc = JAXBContext.newInstance(Jnlp.class);
 		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("JAXBException", e);
 		}
 
 		Unmarshaller um = null;
 		try {
 			um = jc.createUnmarshaller();
 		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("JAXBException", e);
 		}
 
 		Jnlp data = null;
 		try {
 			data = (Jnlp) um.unmarshal(jnlpUri.toURL());
 		} catch (JAXBException | MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("JAXBException | MalformedURLException", e);
 		}
 
-		System.out.println(data.getCodebase());
-		System.out.println(data.getHref());
+		logger.info(data.getCodebase());
+		logger.info(data.getHref());
 
 		List<Resources> resources = data.getResources();
 
@@ -160,13 +157,13 @@ public class JNLPHandler {
 		}
 
 		for (Resources resource : resources) {
-			System.out.println(resource.getArch() + " " + resource.getOs());
+			logger.info(resource.getArch() + " " + resource.getOs());
 			for (Object libRef : resource.getJavaOrJ2SeOrJarOrNativelibOrExtensionOrPropertyOrPackage()) {
 
 				if (libRef instanceof Jar) {
 					Jar jarRef = (Jar) libRef;
 
-					System.out.println(jarRef.getDownload() + " " + jarRef.getHref() + " " + jarRef.getMain() + " "
+					logger.info(jarRef.getDownload() + " " + jarRef.getHref() + " " + jarRef.getMain() + " "
 							+ jarRef.getPart() + " " + jarRef.getSize() + " " + jarRef.getVersion());
 
 					final URI uri = getURIReference(data.getCodebase(), parentUri, jarRef.getHref());
@@ -192,15 +189,15 @@ public class JNLPHandler {
 				} else if (libRef instanceof Extension) {
 					Extension extensionRef = (Extension) libRef;
 
-					System.out.println(extensionRef.getHref() + " " + extensionRef.getName() + " "
-							+ extensionRef.getVersion() + " " + extensionRef.getExtDownload());
+					logger.info(extensionRef.getHref() + " " + extensionRef.getName() + " " + extensionRef.getVersion()
+							+ " " + extensionRef.getExtDownload());
 
 					parseJNLP(getURIReference(data.getCodebase(), parentUri, extensionRef.getHref()));
 
 				} else if (libRef instanceof Nativelib) {
 					Nativelib nativeLibRef = (Nativelib) libRef;
-					System.out.println(nativeLibRef.getDownload() + " " + nativeLibRef.getHref() + " "
-							+ nativeLibRef.getPart() + " " + nativeLibRef.getSize() + " " + nativeLibRef.getVersion());
+					logger.info(nativeLibRef.getDownload() + " " + nativeLibRef.getHref() + " " + nativeLibRef.getPart()
+							+ " " + nativeLibRef.getSize() + " " + nativeLibRef.getVersion());
 
 					final URI uri = getURIReference(data.getCodebase(), parentUri, nativeLibRef.getHref());
 
@@ -227,7 +224,7 @@ public class JNLPHandler {
 				} else if (libRef instanceof Property) {
 					Property propertyRef = (Property) libRef;
 
-					System.out.println(propertyRef.getName() + " " + propertyRef.getValue());
+					logger.info(propertyRef.getName() + " " + propertyRef.getValue());
 
 					properties.put(propertyRef.getName(), propertyRef.getValue());
 				}
@@ -261,7 +258,7 @@ public class JNLPHandler {
 		fullCommand.add(classpath);
 		fullCommand.add(mainMethod);
 
-		System.out.println("Executing " + fullCommand);
+		logger.info("Executing " + fullCommand);
 
 		ProcessBuilder pb = new ProcessBuilder(fullCommand.toArray(new String[] {}));
 		pb.redirectErrorStream(true);
@@ -270,19 +267,17 @@ public class JNLPHandler {
 		try {
 			p = pb.start();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("IOException", e);
 		}
 		BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String readline;
 		int i = 0;
 		try {
 			while ((readline = reader.readLine()) != null) {
-				System.out.println(++i + " " + readline);
+				logger.info(++i + " " + readline);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("IOException", e);
 		}
 	}
 
@@ -302,8 +297,7 @@ public class JNLPHandler {
 		try {
 			theUri = new URI(fullUri);
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.info("URISyntaxException", e);
 		}
 
 		return theUri.normalize();
