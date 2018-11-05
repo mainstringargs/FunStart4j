@@ -45,3 +45,7 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
+compileJava {
+    options.debug = true
+}
