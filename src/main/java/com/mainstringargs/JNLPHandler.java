@@ -163,7 +163,7 @@ public class JNLPHandler {
 				if (libRef instanceof Jar) {
 					Jar jarRef = (Jar) libRef;
 
-					logger.info(jarRef.getDownload() + " " + jarRef.getHref() + " " + jarRef.getMain() + " "
+					logger.debug(jarRef.getDownload() + " " + jarRef.getHref() + " " + jarRef.getMain() + " "
 							+ jarRef.getPart() + " " + jarRef.getSize() + " " + jarRef.getVersion());
 
 					final URI uri = getURIReference(data.getCodebase(), parentUri, jarRef.getHref());
@@ -189,14 +189,14 @@ public class JNLPHandler {
 				} else if (libRef instanceof Extension) {
 					Extension extensionRef = (Extension) libRef;
 
-					logger.info(extensionRef.getHref() + " " + extensionRef.getName() + " " + extensionRef.getVersion()
+					logger.debug(extensionRef.getHref() + " " + extensionRef.getName() + " " + extensionRef.getVersion()
 							+ " " + extensionRef.getExtDownload());
 
 					parseJNLP(getURIReference(data.getCodebase(), parentUri, extensionRef.getHref()));
 
 				} else if (libRef instanceof Nativelib) {
 					Nativelib nativeLibRef = (Nativelib) libRef;
-					logger.info(nativeLibRef.getDownload() + " " + nativeLibRef.getHref() + " " + nativeLibRef.getPart()
+					logger.debug(nativeLibRef.getDownload() + " " + nativeLibRef.getHref() + " " + nativeLibRef.getPart()
 							+ " " + nativeLibRef.getSize() + " " + nativeLibRef.getVersion());
 
 					final URI uri = getURIReference(data.getCodebase(), parentUri, nativeLibRef.getHref());
@@ -224,7 +224,7 @@ public class JNLPHandler {
 				} else if (libRef instanceof Property) {
 					Property propertyRef = (Property) libRef;
 
-					logger.info(propertyRef.getName() + " " + propertyRef.getValue());
+					logger.debug(propertyRef.getName() + " " + propertyRef.getValue());
 
 					properties.put(propertyRef.getName(), propertyRef.getValue());
 				}
@@ -236,7 +236,7 @@ public class JNLPHandler {
 
 	}
 
-	public void runApplication(List<String> argumentsForJVM) {
+	public void runApplication(String javaHome, List<String> argumentsForJVM) {
 		String classpath = "";
 
 		for (File file : classPathJars.values()) {
@@ -251,7 +251,7 @@ public class JNLPHandler {
 		}
 
 		List<String> fullCommand = new ArrayList<>();
-		fullCommand.add("java");
+		fullCommand.add(getJavaLocation(javaHome));
 		fullCommand.addAll(passedInProps);
 		fullCommand.addAll(argumentsForJVM);
 		fullCommand.add("-classpath");
@@ -264,6 +264,7 @@ public class JNLPHandler {
 		pb.redirectErrorStream(true);
 
 		Process p = null;
+
 		try {
 			p = pb.start();
 		} catch (IOException e) {
@@ -279,6 +280,48 @@ public class JNLPHandler {
 		} catch (IOException e) {
 			logger.info("IOException", e);
 		}
+	}
+
+	private String getJavaLocation(String javaHome) {
+
+		File javaHomeFile = new File(javaHome + File.separator + "bin" + File.separator + "java");
+		logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
+
+		if (javaHomeFile.exists()) {
+			logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
+			return javaHomeFile.getAbsolutePath();
+		}
+
+		//Append .exe for Windows
+		javaHomeFile = new File(javaHome + File.separator + "bin" + File.separator + "java.exe");
+		logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
+
+		if (javaHomeFile.exists()) {
+			logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
+			return javaHomeFile.getAbsolutePath();
+		}
+
+		// if they added bin to java.home specifier
+		javaHomeFile = new File(javaHome + File.separator + "java");
+		logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
+
+		if (javaHomeFile.exists()) {
+			logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
+			return javaHomeFile.getAbsolutePath();
+		}
+
+		//Append .exe for Windows
+		javaHomeFile = new File(javaHome + File.separator + "java.exe");
+		logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
+
+		if (javaHomeFile.exists()) {
+			logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
+			return javaHomeFile.getAbsolutePath();
+		}
+
+		// if we can't find it, hope its on the PATH
+		logger.info("Using java on the PATH");
+		return "java";
 	}
 
 	public static URI getURIReference(String codeBase, String parentRef, String fileName) {

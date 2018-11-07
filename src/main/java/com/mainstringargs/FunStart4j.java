@@ -16,11 +16,15 @@ public class FunStart4j {
 	public static void main(String[] args) {
 
 		String jvmProperty = "-J";
+		String javaHomeOverride="-JavaHome-";
 
 		List<String> argumentsForJVM = new ArrayList<String>();
+		String javaHome = System.getProperty("java.home");
 
 		for (String arg : args) {
-			if (arg.startsWith(jvmProperty)) {
+			if (arg.startsWith(javaHomeOverride)) {
+				javaHome = javaHomeOverride;
+			} else if (arg.startsWith(jvmProperty)) {
 				argumentsForJVM.add(arg.replace(jvmProperty, ""));
 			}
 		}
@@ -47,7 +51,7 @@ public class FunStart4j {
 
 			jnlpHandler.parseJNLP();
 
-			jnlpHandler.runApplication(argumentsForJVM);
+			jnlpHandler.runApplication(javaHome,argumentsForJVM);
 		} catch (URISyntaxException e) {
 			logger.info("Exception while creating URI", e);
 		}
