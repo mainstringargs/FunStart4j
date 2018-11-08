@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,48 +35,83 @@ import com.mainstringargs.schema.Nativelib;
 import com.mainstringargs.schema.Property;
 import com.mainstringargs.schema.Resources;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class JNLPHandler.
+ */
 public class JNLPHandler {
 
+	/** The logger. */
 	private static Logger logger = LoggerFactory.getLogger(JNLPHandler.class);
+
+	/** The jnlp uri. */
 	private URI jnlpUri;
+
+	/** The folder location. */
 	private String folderLocation;
 
+	/** The class path jars. */
 	private Map<URI, File> classPathJars = new ConcurrentHashMap<>();
+
+	/** The main method. */
 	private String mainMethod = "";
+
+	/** The properties. */
 	private LinkedHashMap<String, String> properties = new LinkedHashMap<>();
+
+	/** The arguments. */
 	private List<Argument> arguments = new ArrayList<Argument>();
+
+	/** The executor. */
 	private ExecutorService executor = Executors.newCachedThreadPool();
 
+	/**
+	 * Instantiates a new JNLP handler.
+	 *
+	 * @param jnlpUri the jnlp uri
+	 */
 	public JNLPHandler(URI jnlpUri) {
 		this.jnlpUri = jnlpUri;
 	}
 
+	/**
+	 * Instantiates a new JNLP handler.
+	 *
+	 * @param jnlpUri        the jnlp uri
+	 * @param folderLocation the folder location
+	 */
 	public JNLPHandler(URI jnlpUri, String folderLocation) {
 		this.jnlpUri = jnlpUri;
 		this.folderLocation = folderLocation;
 	}
 
+	/**
+	 * Parses the JNLP.
+	 */
 	public void parseJNLP() {
 
 		JAXBContext jc = null;
 		try {
 			jc = JAXBContext.newInstance(Jnlp.class);
 		} catch (JAXBException e) {
-			logger.info("JAXBException", e);
+			if (logger.isInfoEnabled())
+				logger.info("JAXBException", e);
 		}
 
 		Unmarshaller um = null;
 		try {
 			um = jc.createUnmarshaller();
 		} catch (JAXBException e) {
-			logger.info("Exception creating Unmarshaller", e);
+			if (logger.isInfoEnabled())
+				logger.info("Exception creating Unmarshaller", e);
 		}
 
 		Jnlp data = null;
 		try {
 			data = (Jnlp) um.unmarshal(jnlpUri.toURL());
 		} catch (JAXBException | MalformedURLException e) {
-			logger.info("Exception Unmarshalling", e);
+			if (logger.isInfoEnabled())
+				logger.info("Exception Unmarshalling", e);
 		}
 
 		if (folderLocation == null || folderLocation.isEmpty()) {
@@ -102,47 +138,62 @@ public class JNLPHandler {
 
 		executor.shutdownNow();
 
-		logger.info("All work submitted; waiting for finish.");
+		if (logger.isInfoEnabled())
+			logger.info("All work submitted; waiting for finish.");
 		try {
 			executor.awaitTermination(10, TimeUnit.HOURS);
 		} catch (InterruptedException e) {
-			logger.info("InterruptedException", e);
+			if (logger.isInfoEnabled())
+				logger.info("InterruptedException", e);
 		}
 
-		logger.info("Finished.");
+		if (logger.isInfoEnabled())
+			logger.info("Finished.");
 	}
 
+	/**
+	 * Parses the JNLP.
+	 *
+	 * @param jnlpUri the jnlp uri
+	 */
 	public void parseJNLP(URI jnlpUri) {
 
-		logger.info("Parsing... " + jnlpUri);
+		if (logger.isInfoEnabled())
+			logger.info("Parsing... " + jnlpUri);
 
 		String parentUri = getParentUri(jnlpUri);
 
-		logger.info("Parent URI " + parentUri);
+		if (logger.isInfoEnabled())
+			logger.info("Parent URI " + parentUri);
 
 		JAXBContext jc = null;
 		try {
 			jc = JAXBContext.newInstance(Jnlp.class);
 		} catch (JAXBException e) {
-			logger.info("JAXBException", e);
+			if (logger.isInfoEnabled())
+				logger.info("JAXBException", e);
 		}
 
 		Unmarshaller um = null;
 		try {
 			um = jc.createUnmarshaller();
 		} catch (JAXBException e) {
-			logger.info("JAXBException", e);
+			if (logger.isInfoEnabled())
+				logger.info("JAXBException", e);
 		}
 
 		Jnlp data = null;
 		try {
 			data = (Jnlp) um.unmarshal(jnlpUri.toURL());
 		} catch (JAXBException | MalformedURLException e) {
-			logger.info("JAXBException | MalformedURLException", e);
+			if (logger.isInfoEnabled())
+				logger.info("JAXBException | MalformedURLException", e);
 		}
 
-		logger.info(data.getCodebase());
-		logger.info(data.getHref());
+		if (logger.isInfoEnabled()) {
+			logger.info(data.getCodebase());
+			logger.info(data.getHref());
+		}
 
 		List<Resources> resources = data.getResources();
 
@@ -163,18 +214,19 @@ public class JNLPHandler {
 				if (libRef instanceof Jar) {
 					Jar jarRef = (Jar) libRef;
 
-					logger.debug(jarRef.getDownload() + " " + jarRef.getHref() + " " + jarRef.getMain() + " "
-							+ jarRef.getPart() + " " + jarRef.getSize() + " " + jarRef.getVersion());
+					if (logger.isDebugEnabled())
+						logger.debug(jarRef.getDownload() + " " + jarRef.getHref() + " " + jarRef.getMain() + " "
+								+ jarRef.getPart() + " " + jarRef.getSize() + " " + jarRef.getVersion());
 
 					final URI uri = getURIReference(data.getCodebase(), parentUri, jarRef.getHref());
 
 					final Downloader dLoader = new Downloader(uri,
 							folderLocation + File.separator + getFileNameFromUri(uri));
 
-					executor.execute(new Runnable() {
+					executor.submit(new Callable<Void>() {
 
 						@Override
-						public void run() {
+						public Void call() throws Exception {
 
 							if (!classPathJars.containsKey(uri)) {
 								// placeholder until we get the real file
@@ -183,21 +235,26 @@ public class JNLPHandler {
 								classPathJars.put(uri, file);
 							}
 
+							return null;
 						}
 					});
 
 				} else if (libRef instanceof Extension) {
 					Extension extensionRef = (Extension) libRef;
 
-					logger.debug(extensionRef.getHref() + " " + extensionRef.getName() + " " + extensionRef.getVersion()
-							+ " " + extensionRef.getExtDownload());
+					if (logger.isDebugEnabled())
+						logger.debug(extensionRef.getHref() + " " + extensionRef.getName() + " "
+								+ extensionRef.getVersion() + " " + extensionRef.getExtDownload());
 
 					parseJNLP(getURIReference(data.getCodebase(), parentUri, extensionRef.getHref()));
 
 				} else if (libRef instanceof Nativelib) {
 					Nativelib nativeLibRef = (Nativelib) libRef;
-					logger.debug(nativeLibRef.getDownload() + " " + nativeLibRef.getHref() + " " + nativeLibRef.getPart()
-							+ " " + nativeLibRef.getSize() + " " + nativeLibRef.getVersion());
+
+					if (logger.isDebugEnabled())
+						logger.debug(
+								nativeLibRef.getDownload() + " " + nativeLibRef.getHref() + " " + nativeLibRef.getPart()
+										+ " " + nativeLibRef.getSize() + " " + nativeLibRef.getVersion());
 
 					final URI uri = getURIReference(data.getCodebase(), parentUri, nativeLibRef.getHref());
 
@@ -205,26 +262,33 @@ public class JNLPHandler {
 						final Downloader dLoader = new Downloader(uri,
 								folderLocation + File.separator + getFileNameFromUri(uri));
 
-						executor.execute(new Runnable() {
+						executor.submit(new Callable<Void>() {
+
 							@Override
-							public void run() {
+							public Void call() throws Exception {
+
 								if (!classPathJars.containsKey(uri)) {
 									// placeholder until we get the real file
 									classPathJars.put(uri, new File("."));
 									File file = dLoader.getFile(true);
 									classPathJars.put(uri, file);
 								}
+
+								return null;
 							}
 						});
 
 					} catch (Exception e) {
-						e.printStackTrace();
+						if (logger.isInfoEnabled()) {
+							logger.info("Exception", e);
+						}
 					}
 
 				} else if (libRef instanceof Property) {
 					Property propertyRef = (Property) libRef;
 
-					logger.debug(propertyRef.getName() + " " + propertyRef.getValue());
+					if (logger.isDebugEnabled())
+						logger.debug(propertyRef.getName() + " " + propertyRef.getValue());
 
 					properties.put(propertyRef.getName(), propertyRef.getValue());
 				}
@@ -232,10 +296,19 @@ public class JNLPHandler {
 		}
 	}
 
+	/**
+	 * Generate scripts.
+	 */
 	public void generateScripts() {
 
 	}
 
+	/**
+	 * Run application.
+	 *
+	 * @param javaHome        the java home
+	 * @param argumentsForJVM the arguments for JVM
+	 */
 	public void runApplication(String javaHome, List<String> argumentsForJVM) {
 		String classpath = "";
 
@@ -258,7 +331,8 @@ public class JNLPHandler {
 		fullCommand.add(classpath);
 		fullCommand.add(mainMethod);
 
-		logger.info("Executing " + fullCommand);
+		if (logger.isInfoEnabled())
+			logger.info("Executing " + fullCommand);
 
 		ProcessBuilder pb = new ProcessBuilder(fullCommand.toArray(new String[] {}));
 		pb.redirectErrorStream(true);
@@ -268,7 +342,8 @@ public class JNLPHandler {
 		try {
 			p = pb.start();
 		} catch (IOException e) {
-			logger.info("IOException", e);
+			if (logger.isInfoEnabled())
+				logger.info("IOException", e);
 		}
 		BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		String readline;
@@ -278,52 +353,76 @@ public class JNLPHandler {
 				logger.info(++i + " " + readline);
 			}
 		} catch (IOException e) {
-			logger.info("IOException", e);
+			if (logger.isInfoEnabled())
+				logger.info("IOException", e);
 		}
 	}
 
+	/**
+	 * Gets the java location.
+	 *
+	 * @param javaHome the java home
+	 * @return the java location
+	 */
 	private String getJavaLocation(String javaHome) {
 
 		File javaHomeFile = new File(javaHome + File.separator + "bin" + File.separator + "java");
-		logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
+		if (logger.isInfoEnabled())
+			logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
 
 		if (javaHomeFile.exists()) {
-			logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
+			if (logger.isInfoEnabled())
+				logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
 			return javaHomeFile.getAbsolutePath();
 		}
 
-		//Append .exe for Windows
+		// Append .exe for Windows
 		javaHomeFile = new File(javaHome + File.separator + "bin" + File.separator + "java.exe");
 		logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
 
 		if (javaHomeFile.exists()) {
-			logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
+			if (logger.isInfoEnabled())
+				logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
 			return javaHomeFile.getAbsolutePath();
 		}
 
 		// if they added bin to java.home specifier
 		javaHomeFile = new File(javaHome + File.separator + "java");
-		logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
+		if (logger.isInfoEnabled())
+			logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
 
 		if (javaHomeFile.exists()) {
-			logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
+			if (logger.isInfoEnabled())
+				logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
 			return javaHomeFile.getAbsolutePath();
 		}
 
-		//Append .exe for Windows
+		// Append .exe for Windows
 		javaHomeFile = new File(javaHome + File.separator + "java.exe");
-		logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
+		if (logger.isInfoEnabled())
+			logger.info("Looking for java in " + javaHomeFile.getAbsolutePath());
 
 		if (javaHomeFile.exists()) {
-			logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
+			if (logger.isInfoEnabled())
+				logger.info("Found Java @ " + javaHomeFile.getAbsolutePath());
 			return javaHomeFile.getAbsolutePath();
 		}
 
 		// if we can't find it, hope its on the PATH
-		logger.info("Using java on the PATH");
+		if (logger.isInfoEnabled())
+			logger.info("Using java on the PATH");
+
 		return "java";
 	}
 
+	/**
+	 * Gets the URI reference.
+	 *
+	 * @param codeBase  the code base
+	 * @param parentRef the parent ref
+	 * @param fileName  the file name
+	 * @return the URI reference
+	 */
 	public static URI getURIReference(String codeBase, String parentRef, String fileName) {
 		String fullUri = codeBase + "/" + fileName;
 
@@ -340,13 +439,20 @@ public class JNLPHandler {
 		try {
 			theUri = new URI(fullUri);
 		} catch (URISyntaxException e) {
-			logger.info("URISyntaxException", e);
+			if (logger.isInfoEnabled())
+				logger.info("URISyntaxException", e);
 		}
 
 		return theUri.normalize();
 
 	}
 
+	/**
+	 * Gets the file name from uri.
+	 *
+	 * @param uri the uri
+	 * @return the file name from uri
+	 */
 	public static String getFileNameFromUri(URI uri) {
 
 		String uriString = uri.toString();
@@ -354,6 +460,12 @@ public class JNLPHandler {
 		return uriString.substring(uriString.lastIndexOf('/') + 1).split("\\?")[0].split("#")[0];
 	}
 
+	/**
+	 * Gets the parent uri.
+	 *
+	 * @param uri the uri
+	 * @return the parent uri
+	 */
 	private String getParentUri(URI uri) {
 		String uriString = uri.toString();
 

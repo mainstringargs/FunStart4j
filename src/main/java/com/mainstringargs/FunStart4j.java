@@ -9,14 +9,24 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class FunStart4j.
+ */
 public class FunStart4j {
 
+	/** The logger. */
 	private static Logger logger = LoggerFactory.getLogger(FunStart4j.class);
 
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 */
 	public static void main(String[] args) {
 
 		String jvmProperty = "-J";
-		String javaHomeOverride="-JavaHome-";
+		String javaHomeOverride = "-JavaHome-";
 
 		List<String> argumentsForJVM = new ArrayList<String>();
 		String javaHome = System.getProperty("java.home");
@@ -29,7 +39,8 @@ public class FunStart4j {
 			}
 		}
 
-		logger.info("Found JVM Properties: " + argumentsForJVM);
+		if (logger.isInfoEnabled())
+			logger.info("Found JVM Properties: " + argumentsForJVM);
 
 		URL website = null;
 		try {
@@ -40,20 +51,22 @@ public class FunStart4j {
 			}
 
 		} catch (MalformedURLException e) {
-			logger.info("Exception while creating URL", e);
+			if (logger.isInfoEnabled())
+				logger.info("Exception while creating URL", e);
 		}
 
 		try {
-
-			logger.info("Grabbing JNLP from: " + website.toURI());
+			if (logger.isInfoEnabled())
+				logger.info("Grabbing JNLP from: " + website.toURI());
 
 			JNLPHandler jnlpHandler = new JNLPHandler(website.toURI());
 
 			jnlpHandler.parseJNLP();
 
-			jnlpHandler.runApplication(javaHome,argumentsForJVM);
+			jnlpHandler.runApplication(javaHome, argumentsForJVM);
 		} catch (URISyntaxException e) {
-			logger.info("Exception while creating URI", e);
+			if (logger.isInfoEnabled())
+				logger.info("Exception while creating URI", e);
 		}
 
 	}

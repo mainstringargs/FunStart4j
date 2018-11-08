@@ -11,18 +11,41 @@ import java.net.URLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Downloader.
+ */
 public class Downloader {
 
+	/** The logger. */
 	private static Logger logger = LoggerFactory.getLogger(Downloader.class);
+
+	/** The hosted file url. */
 	private URI hostedFileUrl;
+
+	/** The downloaded file. */
 	private String downloadedFile;
+
+	/** The file reference. */
 	private File fileReference;
 
+	/**
+	 * Instantiates a new downloader.
+	 *
+	 * @param url            the url
+	 * @param downloadedFile the downloaded file
+	 */
 	public Downloader(URI url, String downloadedFile) {
 		this.hostedFileUrl = url;
 		this.downloadedFile = downloadedFile;
 	}
 
+	/**
+	 * Gets the file.
+	 *
+	 * @param retryIfFailed the retry if failed
+	 * @return the file
+	 */
 	public File getFile(boolean retryIfFailed) {
 
 		File file = new File(downloadedFile);
@@ -34,11 +57,13 @@ public class Downloader {
 			long existingFileSize = file.length();
 			long existingFileModified = file.lastModified();
 
-			logger.info(downloadedFile + " " + existingFileSize + ":" + newFileSize + " " + existingFileModified + ":"
-					+ newFileModified);
+			if (logger.isInfoEnabled())
+				logger.info(downloadedFile + " " + existingFileSize + ":" + newFileSize + " " + existingFileModified
+						+ ":" + newFileModified);
 
 			if (existingFileSize == newFileSize && existingFileModified == newFileModified) {
-				logger.info(downloadedFile + " is cached, no need to re-download");
+				if (logger.isInfoEnabled())
+					logger.info(downloadedFile + " is cached, no need to re-download");
 				return file;
 			}
 		}
@@ -50,7 +75,8 @@ public class Downloader {
 
 			FileOutputStream fos = null;
 			try {
-				logger.info("Downloading " + hostedFileUrl);
+				if (logger.isInfoEnabled())
+					logger.info("Downloading " + hostedFileUrl);
 				connection = hostedFileUrl.toURL().openConnection();
 
 				in = connection.getInputStream();
@@ -72,24 +98,28 @@ public class Downloader {
 				file.setLastModified(getLastModified());
 				this.fileReference = file;
 
-				logger.info("Download Finished " + hostedFileUrl + " to " + this.fileReference.getAbsolutePath());
+				if (logger.isInfoEnabled())
+					logger.info("Download Finished " + hostedFileUrl + " to " + this.fileReference.getAbsolutePath());
 
 			} catch (IOException e) {
 
-				logger.info("IOException", e);
+				if (logger.isInfoEnabled())
+					logger.info("IOException", e);
 
 				if (in != null) {
 					try {
 						in.close();
 					} catch (IOException e1) {
-						logger.info("IOException", e1);
+						if (logger.isInfoEnabled())
+							logger.info("IOException", e1);
 					}
 				}
 				if (fos != null) {
 					try {
 						fos.close();
 					} catch (IOException e1) {
-						logger.info("IOException", e1);
+						if (logger.isInfoEnabled())
+							logger.info("IOException", e1);
 					}
 				}
 
@@ -112,6 +142,11 @@ public class Downloader {
 		return this.fileReference;
 	}
 
+	/**
+	 * Gets the file size.
+	 *
+	 * @return the file size
+	 */
 	public long getFileSize() {
 		URLConnection conn = null;
 		try {
@@ -130,6 +165,11 @@ public class Downloader {
 		}
 	}
 
+	/**
+	 * Gets the last modified.
+	 *
+	 * @return the last modified
+	 */
 	public long getLastModified() {
 		URLConnection conn = null;
 		try {

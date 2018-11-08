@@ -23,8 +23,17 @@ import com.mainstringargs.schema.Nativelib;
 import com.mainstringargs.schema.Property;
 import com.mainstringargs.schema.Resources;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Tester.
+ */
 public class Tester {
 
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 */
 	public static void main(String[] args) {
 
 		File folder = new File("lib");
@@ -65,6 +74,11 @@ public class Tester {
 		}
 	}
 
+	/**
+	 * Parses the JNLP.
+	 *
+	 * @param fileUrl the file url
+	 */
 	private static void parseJNLP(URI fileUrl) {
 
 		System.err.println("Parsing... " + fileUrl);
@@ -141,6 +155,13 @@ public class Tester {
 		}
 	}
 
+	/**
+	 * Gets the file.
+	 *
+	 * @param url      the url
+	 * @param fileName the file name
+	 * @return the file
+	 */
 	private static File getFile(URL url, String fileName) {
 
 		System.out.println("Downloading " + url + " size " + getFileSize(url));
@@ -170,6 +191,12 @@ public class Tester {
 		return downloadedFile;
 	}
 
+	/**
+	 * Gets the file size.
+	 *
+	 * @param url the url
+	 * @return the file size
+	 */
 	private static int getFileSize(URL url) {
 		URLConnection conn = null;
 		try {
@@ -188,6 +215,12 @@ public class Tester {
 		}
 	}
 
+	/**
+	 * Gets the last modified.
+	 *
+	 * @param url the url
+	 * @return the last modified
+	 */
 	private static long getLastModified(URL url) {
 		URLConnection conn = null;
 		try {
@@ -206,6 +239,13 @@ public class Tester {
 		}
 	}
 
+	/**
+	 * Gets the URL reference.
+	 *
+	 * @param codeBase the code base
+	 * @param fileName the file name
+	 * @return the URL reference
+	 */
 	public static URL getURLReference(String codeBase, String fileName) {
 		String fullUrl = codeBase + "/" + fileName;
 
@@ -225,6 +265,12 @@ public class Tester {
 
 	}
 
+	/**
+	 * Gets the file name from url.
+	 *
+	 * @param url the url
+	 * @return the file name from url
+	 */
 	public static String getFileNameFromUrl(URL url) {
 
 		String urlString = url.toString();
