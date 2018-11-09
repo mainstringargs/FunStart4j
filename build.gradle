@@ -38,7 +38,7 @@ xjcGenerate {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'io.github.mainstringargs.FunStart4j'
+        attributes 'Main-Class': 'io.github.mainstringargs.funstart4j.FunStart4j'
     }
 	
 	from {
