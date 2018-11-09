@@ -1,4 +1,4 @@
-package com.mainstringargs;
+package io.github.mainstringargs.funstart4j;
 
 import java.io.File;
 import java.io.FileOutputStream;

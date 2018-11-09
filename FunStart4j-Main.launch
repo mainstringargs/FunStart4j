@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-        <listEntry value="/FunStart4j/src/main/java/com/mainstringargs/FunStart4j.java"/>
+        <listEntry value="/FunStart4j/src/main/java/io/github/mainstringargs/funstart4j/FunStart4j.java"/>
     </listAttribute>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
         <listEntry value="1"/>
     </listAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
-    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.mainstringargs.FunStart4j"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="io.github.mainstringargs.funstart4j.FunStart4j"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="https://worldwind.arc.nasa.gov/java/latest/webstart/AirspaceBuilder.jnlp"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="FunStart4j"/>
 </launchConfiguration>

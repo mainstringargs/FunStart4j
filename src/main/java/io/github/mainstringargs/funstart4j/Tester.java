@@ -1,4 +1,4 @@
-package com.mainstringargs;
+package io.github.mainstringargs.funstart4j;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,12 +16,12 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import com.mainstringargs.schema.Extension;
-import com.mainstringargs.schema.Jar;
-import com.mainstringargs.schema.Jnlp;
-import com.mainstringargs.schema.Nativelib;
-import com.mainstringargs.schema.Property;
-import com.mainstringargs.schema.Resources;
+import io.github.mainstringargs.funstart4j.schema.Extension;
+import io.github.mainstringargs.funstart4j.schema.Jar;
+import io.github.mainstringargs.funstart4j.schema.Jnlp;
+import io.github.mainstringargs.funstart4j.schema.Nativelib;
+import io.github.mainstringargs.funstart4j.schema.Property;
+import io.github.mainstringargs.funstart4j.schema.Resources;
 
 // TODO: Auto-generated Javadoc
 /**

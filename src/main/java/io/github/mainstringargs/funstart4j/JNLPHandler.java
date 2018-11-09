@@ -1,4 +1,4 @@
-package com.mainstringargs;
+package io.github.mainstringargs.funstart4j;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,15 +25,15 @@ import javax.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mainstringargs.schema.ApplicationDesc;
-import com.mainstringargs.schema.Argument;
-import com.mainstringargs.schema.Extension;
-import com.mainstringargs.schema.Information;
-import com.mainstringargs.schema.Jar;
-import com.mainstringargs.schema.Jnlp;
-import com.mainstringargs.schema.Nativelib;
-import com.mainstringargs.schema.Property;
-import com.mainstringargs.schema.Resources;
+import io.github.mainstringargs.funstart4j.schema.ApplicationDesc;
+import io.github.mainstringargs.funstart4j.schema.Argument;
+import io.github.mainstringargs.funstart4j.schema.Extension;
+import io.github.mainstringargs.funstart4j.schema.Information;
+import io.github.mainstringargs.funstart4j.schema.Jar;
+import io.github.mainstringargs.funstart4j.schema.Jnlp;
+import io.github.mainstringargs.funstart4j.schema.Nativelib;
+import io.github.mainstringargs.funstart4j.schema.Property;
+import io.github.mainstringargs.funstart4j.schema.Resources;
 
 // TODO: Auto-generated Javadoc
 /**
