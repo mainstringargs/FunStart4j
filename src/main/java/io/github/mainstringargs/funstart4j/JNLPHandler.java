@@ -68,6 +68,8 @@ public class JNLPHandler {
 	/** The executor. */
 	private ExecutorService executor = Executors.newCachedThreadPool();
 
+	private List<JNLPStatusObserver> observers = new ArrayList<JNLPStatusObserver>();
+
 	/**
 	 * Instantiates a new JNLP handler.
 	 *
@@ -86,6 +88,18 @@ public class JNLPHandler {
 	public JNLPHandler(URI jnlpUri, String folderLocation) {
 		this.jnlpUri = jnlpUri;
 		this.folderLocation = folderLocation;
+	}
+
+	public void addJNLPStatusObserver(JNLPStatusObserver jnlpStatusObserver) {
+		observers.add(jnlpStatusObserver);
+	}
+
+	public void notifyObservers(Downloader jnlpDownloader, JNLPStatus jnlpStatus) {
+//		synchronized (JNLPHandler.class) {
+		for (JNLPStatusObserver observer : observers) {
+			observer.statusChange(jnlpDownloader, jnlpStatus);
+		}
+//		}
 	}
 
 	/**
@@ -232,12 +246,18 @@ public class JNLPHandler {
 						public Void call() throws Exception {
 
 							if (!absoluteClasspathReferences.containsKey(uri)) {
+
+								notifyObservers(dLoader, JNLPStatus.START);
+
 								// placeholder until we get the real file
 								absoluteClasspathReferences.put(uri, new File("."));
 								File file = dLoader.getFile(true);
 								absoluteClasspathReferences.put(uri, file);
 
 								relativeClasspathReferences.put(uri, dLoader.getRelativeFileReference());
+
+								notifyObservers(dLoader, JNLPStatus.FINISH);
+
 							}
 
 							return null;
@@ -273,12 +293,18 @@ public class JNLPHandler {
 							public Void call() throws Exception {
 
 								if (!absoluteClasspathReferences.containsKey(uri)) {
+
+									notifyObservers(dLoader, JNLPStatus.START);
+
 									// placeholder until we get the real file
 									absoluteClasspathReferences.put(uri, new File("."));
 									File file = dLoader.getFile(true);
 									absoluteClasspathReferences.put(uri, file);
 
 									relativeClasspathReferences.put(uri, dLoader.getRelativeFileReference());
+
+									notifyObservers(dLoader, JNLPStatus.FINISH);
+
 								}
 
 								return null;
@@ -333,7 +359,9 @@ public class JNLPHandler {
 		List<String> fullCommand = new ArrayList<>();
 		fullCommand.add(getJavaLocation(javaHome));
 		fullCommand.addAll(passedInProps);
-		fullCommand.addAll(argumentsForJVM);
+		if (argumentsForJVM != null) {
+			fullCommand.addAll(argumentsForJVM);
+		}
 		fullCommand.add("-classpath");
 		fullCommand.add(classpath);
 		fullCommand.add(mainMethod);
