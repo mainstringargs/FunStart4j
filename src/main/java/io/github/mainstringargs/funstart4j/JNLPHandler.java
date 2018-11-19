@@ -50,8 +50,11 @@ public class JNLPHandler {
 	/** The folder location. */
 	private String folderLocation;
 
-	/** The class path jars. */
-	private Map<URI, File> classPathJars = new ConcurrentHashMap<>();
+	/** The absolute classpath references. */
+	private Map<URI, File> absoluteClasspathReferences = new ConcurrentHashMap<>();
+
+	/** The relative classpath references. */
+	private Map<URI, String> relativeClasspathReferences = new ConcurrentHashMap<>();
 
 	/** The main method. */
 	private String mainMethod = "";
@@ -228,11 +231,13 @@ public class JNLPHandler {
 						@Override
 						public Void call() throws Exception {
 
-							if (!classPathJars.containsKey(uri)) {
+							if (!absoluteClasspathReferences.containsKey(uri)) {
 								// placeholder until we get the real file
-								classPathJars.put(uri, new File("."));
+								absoluteClasspathReferences.put(uri, new File("."));
 								File file = dLoader.getFile(true);
-								classPathJars.put(uri, file);
+								absoluteClasspathReferences.put(uri, file);
+
+								relativeClasspathReferences.put(uri, dLoader.getRelativeFileReference());
 							}
 
 							return null;
@@ -267,11 +272,13 @@ public class JNLPHandler {
 							@Override
 							public Void call() throws Exception {
 
-								if (!classPathJars.containsKey(uri)) {
+								if (!absoluteClasspathReferences.containsKey(uri)) {
 									// placeholder until we get the real file
-									classPathJars.put(uri, new File("."));
+									absoluteClasspathReferences.put(uri, new File("."));
 									File file = dLoader.getFile(true);
-									classPathJars.put(uri, file);
+									absoluteClasspathReferences.put(uri, file);
+
+									relativeClasspathReferences.put(uri, dLoader.getRelativeFileReference());
 								}
 
 								return null;
@@ -312,8 +319,8 @@ public class JNLPHandler {
 	public void runApplication(String javaHome, List<String> argumentsForJVM) {
 		String classpath = "";
 
-		for (File file : classPathJars.values()) {
-			classpath += file.getAbsolutePath() + File.pathSeparator;
+		for (String file : relativeClasspathReferences.values()) {
+			classpath += file + File.pathSeparator;
 		}
 
 		List<String> passedInProps = new ArrayList<String>();

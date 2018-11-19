@@ -23,8 +23,8 @@ public class Downloader {
 	/** The hosted file url. */
 	private URI hostedFileUrl;
 
-	/** The downloaded file. */
-	private String downloadedFile;
+	/** The relative file reference */
+	private String relativeFileReference;
 
 	/** The file reference. */
 	private File fileReference;
@@ -33,11 +33,11 @@ public class Downloader {
 	 * Instantiates a new downloader.
 	 *
 	 * @param url            the url
-	 * @param downloadedFile the downloaded file
+	 * @param relativeFileReference the relative file reference
 	 */
-	public Downloader(URI url, String downloadedFile) {
+	public Downloader(URI url, String relativeFileReference) {
 		this.hostedFileUrl = url;
-		this.downloadedFile = downloadedFile;
+		this.relativeFileReference = relativeFileReference;
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class Downloader {
 	 */
 	public File getFile(boolean retryIfFailed) {
 
-		File file = new File(downloadedFile);
+		File file = new File(relativeFileReference);
 
 		long newFileSize = getFileSize();
 		long newFileModified = getLastModified();
@@ -58,12 +58,12 @@ public class Downloader {
 			long existingFileModified = file.lastModified();
 
 			if (logger.isInfoEnabled())
-				logger.info(downloadedFile + " " + existingFileSize + ":" + newFileSize + " " + existingFileModified
+				logger.info(relativeFileReference + " " + existingFileSize + ":" + newFileSize + " " + existingFileModified
 						+ ":" + newFileModified);
 
 			if (existingFileSize == newFileSize && existingFileModified == newFileModified) {
 				if (logger.isInfoEnabled())
-					logger.info(downloadedFile + " is cached, no need to re-download");
+					logger.info(relativeFileReference + " is cached, no need to re-download");
 				return file;
 			}
 		}
@@ -81,7 +81,7 @@ public class Downloader {
 
 				in = connection.getInputStream();
 
-				fos = new FileOutputStream(downloadedFile);
+				fos = new FileOutputStream(relativeFileReference);
 				byte[] buf = new byte[512];
 				while (true) {
 					int len = in.read(buf);
@@ -186,6 +186,15 @@ public class Downloader {
 				((HttpURLConnection) conn).disconnect();
 			}
 		}
+	}
+
+	/**
+	 * Gets the relative file reference.
+	 *
+	 * @return the relative file reference
+	 */
+	public String getRelativeFileReference() {
+		return relativeFileReference;
 	}
 
 }
