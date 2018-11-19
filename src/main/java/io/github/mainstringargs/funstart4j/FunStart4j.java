@@ -3,8 +3,6 @@ package io.github.mainstringargs.funstart4j;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,22 +23,7 @@ public class FunStart4j {
 	 */
 	public static void main(String[] args) {
 
-		String jvmProperty = "-J";
-		String javaHomeOverride = "-JavaHome-";
-
-		List<String> argumentsForJVM = new ArrayList<String>();
-		String javaHome = System.getProperty("java.home");
-
-		for (String arg : args) {
-			if (arg.startsWith(javaHomeOverride)) {
-				javaHome = javaHomeOverride;
-			} else if (arg.startsWith(jvmProperty)) {
-				argumentsForJVM.add(arg.replace(jvmProperty, ""));
-			}
-		}
-
-		if (logger.isInfoEnabled())
-			logger.info("Found JVM Properties: " + argumentsForJVM);
+		FunStart4JConfiguration configuration = FunStart4JConfiguration.getConfigurationFromArguments(args);
 
 		URL website = null;
 		try {
@@ -63,7 +46,7 @@ public class FunStart4j {
 
 			jnlpHandler.parseJNLP();
 
-			jnlpHandler.runApplication(javaHome, argumentsForJVM);
+			jnlpHandler.runApplication(configuration);
 		} catch (URISyntaxException e) {
 			if (logger.isInfoEnabled())
 				logger.info("Exception while creating URI", e);

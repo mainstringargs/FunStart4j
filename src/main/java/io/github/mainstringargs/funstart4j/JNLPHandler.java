@@ -104,7 +104,7 @@ public class JNLPHandler {
 	 * Notify observers.
 	 *
 	 * @param jnlpDownloader the jnlp downloader
-	 * @param jnlpStatus the jnlp status
+	 * @param jnlpStatus     the jnlp status
 	 */
 	public void notifyObservers(Downloader jnlpDownloader, JNLPStatus jnlpStatus) {
 //		synchronized (JNLPHandler.class) {
@@ -351,10 +351,9 @@ public class JNLPHandler {
 	/**
 	 * Run application.
 	 *
-	 * @param javaHome        the java home
-	 * @param argumentsForJVM the arguments for JVM
+	 * @param configuration the configuration
 	 */
-	public void runApplication(String javaHome, List<String> argumentsForJVM) {
+	public void runApplication(FunStart4JConfiguration configuration) {
 		String classpath = "";
 
 		for (String file : relativeClasspathReferences.values()) {
@@ -369,10 +368,10 @@ public class JNLPHandler {
 		}
 
 		List<String> fullCommand = new ArrayList<>();
-		fullCommand.add(getJavaLocation(javaHome));
+		fullCommand.add(getJavaLocation(configuration.getJavaHome()));
 		fullCommand.addAll(passedInProps);
-		if (argumentsForJVM != null) {
-			fullCommand.addAll(argumentsForJVM);
+		if (configuration.getArgumentsForJVM() != null) {
+			fullCommand.addAll(configuration.getArgumentsForJVM());
 		}
 		fullCommand.add("-classpath");
 		fullCommand.add(classpath);

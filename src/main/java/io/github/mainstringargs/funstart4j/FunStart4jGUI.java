@@ -31,31 +31,36 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 
 	/** The url field. */
 	private JTextField urlField;
-	
+
 	/** The progress bar. */
 	private JProgressBar progressBar;
-	
+
 	/** The start button. */
 	private JButton startButton;
-	
+
 	/** The run button. */
 	private JButton runButton;
-	
+
 	/** The task output. */
 	private JTextField taskOutput;
-	
+
 	/** The task. */
 	private Task task;
-	
+
 	/** The jnlp handler. */
 	private JNLPHandler jnlpHandler = null;
+
+	/** The configuration. */
+	private static FunStart4JConfiguration configuration;
 
 	/**
 	 * The Class Task.
 	 */
 	class Task extends SwingWorker<Void, Void> {
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see javax.swing.SwingWorker#doInBackground()
 		 */
 		/*
@@ -121,7 +126,9 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 			return null;
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see javax.swing.SwingWorker#done()
 		 */
 		/*
@@ -211,7 +218,7 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 				@Override
 				public void run() {
 
-					jnlpHandler.runApplication(null, null);
+					jnlpHandler.runApplication(configuration);
 				}
 			};
 
@@ -258,6 +265,9 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
+
+		configuration = FunStart4JConfiguration.getConfigurationFromArguments(args);
+
 		// Schedule a job for the event-dispatching thread:
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
