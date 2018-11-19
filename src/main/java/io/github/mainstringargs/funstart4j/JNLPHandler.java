@@ -68,6 +68,7 @@ public class JNLPHandler {
 	/** The executor. */
 	private ExecutorService executor = Executors.newCachedThreadPool();
 
+	/** The observers. */
 	private List<JNLPStatusObserver> observers = new ArrayList<JNLPStatusObserver>();
 
 	/**
@@ -90,10 +91,21 @@ public class JNLPHandler {
 		this.folderLocation = folderLocation;
 	}
 
+	/**
+	 * Adds the JNLP status observer.
+	 *
+	 * @param jnlpStatusObserver the jnlp status observer
+	 */
 	public void addJNLPStatusObserver(JNLPStatusObserver jnlpStatusObserver) {
 		observers.add(jnlpStatusObserver);
 	}
 
+	/**
+	 * Notify observers.
+	 *
+	 * @param jnlpDownloader the jnlp downloader
+	 * @param jnlpStatus the jnlp status
+	 */
 	public void notifyObservers(Downloader jnlpDownloader, JNLPStatus jnlpStatus) {
 //		synchronized (JNLPHandler.class) {
 		for (JNLPStatusObserver observer : observers) {

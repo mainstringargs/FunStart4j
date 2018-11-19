@@ -23,7 +23,7 @@ public class Downloader {
 	/** The hosted file url. */
 	private URI hostedFileUrl;
 
-	/** The relative file reference */
+	/**  The relative file reference. */
 	private String relativeFileReference;
 
 	/** The file reference. */
