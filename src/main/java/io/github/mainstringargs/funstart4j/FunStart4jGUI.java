@@ -15,13 +15,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -49,6 +50,9 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 
 	/** The jnlp handler. */
 	private JNLPHandler jnlpHandler = null;
+
+	/** The initial uri. */
+	private URI initialUri;
 
 	/** The configuration. */
 	private static FunStart4JConfiguration configuration;
@@ -136,27 +140,76 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 		 */
 		@Override
 		public void done() {
+
+			setProgress(100);
 			startButton.setEnabled(true);
-			urlField.setEditable(true);
+			if (initialUri == null) {
+				urlField.setEditable(true);
+			}
 			setCursor(null); // turn off the wait cursor
 			taskOutput.setText("Done!\n");
 			runButton.setEnabled(true);
-			;
 
+			if (initialUri != null) {
+
+				runApplication();
+
+			}
 		}
 	}
 
 	/**
 	 * Instantiates a new fun start 4 j GUI.
+	 *
+	 * @param uri the uri
 	 */
-	public FunStart4jGUI() {
+	public FunStart4jGUI(URI uri) {
 		super(new BorderLayout());
 
-		urlField = new JTextField("https://worldwind.arc.nasa.gov/java/latest/webstart/AirspaceBuilder.jnlp");
+		initialUri = uri;
+
+		urlField = new JTextField(uri != null ? uri.toString() : "");
 		urlField.setPreferredSize(new Dimension(300, 20));
+
+		urlField.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				validInput();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				validInput();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				validInput();
+			}
+
+			public void validInput() {
+				String text = urlField.getText();
+				boolean isValid = !text.trim().isEmpty() && text.toLowerCase().endsWith(".jnlp");
+
+				startButton.setEnabled(isValid);
+
+				if (!isValid && runButton.isEnabled()) {
+					runButton.setEnabled(false);
+				}
+
+			}
+		});
+
+		if (uri != null) {
+			urlField.setEditable(false);
+		} else {
+			urlField.setEditable(true);
+		}
 
 		startButton = new JButton("Start");
 		startButton.setActionCommand("start");
+		startButton.setEnabled(false);
 		startButton.addActionListener(this);
 
 		progressBar = new JProgressBar(0, 100);
@@ -174,7 +227,10 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 
 		JPanel panel = new JPanel();
 		panel.add(urlField);
-		panel.add(startButton);
+
+		if (uri == null) {
+			panel.add(startButton);
+		}
 
 		add(panel, BorderLayout.NORTH);
 		add(progressBar, BorderLayout.CENTER);
@@ -183,7 +239,10 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 		bottomPanel.add((taskOutput), BorderLayout.CENTER);
 
 		JPanel bottomButtonPanel = new JPanel();
-		bottomButtonPanel.add(runButton);
+
+		if (uri == null) {
+			bottomButtonPanel.add(runButton);
+		}
 
 		bottomPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
 
@@ -201,31 +260,104 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 	public void actionPerformed(ActionEvent evt) {
 
 		if (evt.getActionCommand().equals("start")) {
-			runButton.setEnabled(false);
-			progressBar.setValue(0);
-			startButton.setEnabled(false);
-			urlField.setEditable(false);
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			// Instances of javax.swing.SwingWorker are not reusuable, so
-			// we create new instances as needed.
-			task = new Task();
-			task.addPropertyChangeListener(this);
-			task.execute();
+			startDownload();
 		} else if (evt.getActionCommand().equals("run")) {
-
-			Runnable jnlpRunnable = new Runnable() {
-
-				@Override
-				public void run() {
-
-					jnlpHandler.runApplication(configuration);
-				}
-			};
-
-			Thread jnlpThread = new Thread(jnlpRunnable);
-			jnlpThread.start();
+			runApplication();
 		}
 
+	}
+
+	/**
+	 * Run application.
+	 */
+	private void runApplication() {
+
+		taskOutput.setText("Starting Application!\n");
+
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				hideFrameInFuture(3000L);
+
+				Runnable jnlpRunnable = new Runnable() {
+
+					@Override
+					public void run() {
+
+						jnlpHandler.runApplication(configuration);
+					}
+				};
+
+				Thread jnlpThread = new Thread(jnlpRunnable);
+				jnlpThread.start();
+
+				try {
+					jnlpThread.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				System.exit(0);
+
+			}
+
+		}).start();
+
+	}
+
+	/**
+	 * Hide frame in future.
+	 *
+	 * @param futureTimeInMs the future time in ms
+	 */
+	protected void hideFrameInFuture(final long futureTimeInMs) {
+
+		Runnable frameWaitRunnable = new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(futureTimeInMs);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+
+						JFrame mainFrame = (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, FunStart4jGUI.this);
+
+						mainFrame.setVisible(false);
+
+					}
+				});
+
+			}
+		};
+
+		Thread frameWaitThread = new Thread(frameWaitRunnable);
+		frameWaitThread.start();
+	}
+
+	/**
+	 * Start download.
+	 */
+	private void startDownload() {
+		runButton.setEnabled(false);
+		progressBar.setValue(0);
+		startButton.setEnabled(false);
+		urlField.setEditable(false);
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		// Instances of javax.swing.SwingWorker are not reusuable, so
+		// we create new instances as needed.
+		task = new Task();
+		task.addPropertyChangeListener(this);
+		task.execute();
 	}
 
 	/**
@@ -243,20 +375,32 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 	/**
 	 * Create the GUI and show it. As with all GUI code, this must run on the
 	 * event-dispatching thread.
+	 *
+	 * @param uri           the uri
+	 * @param configuration the configuration
 	 */
-	private static void createAndShowGUI() {
+	public static void createAndShowGUI(URI uri, FunStart4JConfiguration configuration) {
+
+		FunStart4jGUI.configuration = configuration;
+
 		// Create and set up the window.
 		JFrame frame = new JFrame("FunStart4j");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and set up the content pane.
-		JComponent newContentPane = new FunStart4jGUI();
+		FunStart4jGUI newContentPane = new FunStart4jGUI(uri);
 		newContentPane.setOpaque(true); // content panes must be opaque
 		frame.setContentPane(newContentPane);
 
 		// Display the window.
 		frame.pack();
+		// centers frame on screen
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+
+		if (uri != null) {
+			newContentPane.startDownload();
+		}
 	}
 
 	/**
@@ -264,15 +408,13 @@ public class FunStart4jGUI extends JPanel implements ActionListener, PropertyCha
 	 *
 	 * @param args the arguments
 	 */
-	public static void main(String[] args) {
-
-		configuration = FunStart4JConfiguration.getConfigurationFromArguments(args);
+	public static void main(final String[] args) {
 
 		// Schedule a job for the event-dispatching thread:
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				createAndShowGUI();
+				createAndShowGUI(null, FunStart4JConfiguration.getConfigurationFromArguments(args));
 			}
 		});
 	}

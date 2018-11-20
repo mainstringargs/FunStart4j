@@ -1,6 +1,7 @@
 package io.github.mainstringargs.funstart4j;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -23,7 +24,7 @@ public class FunStart4j {
 	 */
 	public static void main(String[] args) {
 
-		FunStart4JConfiguration configuration = FunStart4JConfiguration.getConfigurationFromArguments(args);
+		final FunStart4JConfiguration configuration = FunStart4JConfiguration.getConfigurationFromArguments(args);
 
 		URL website = null;
 		try {
@@ -42,11 +43,20 @@ public class FunStart4j {
 			if (logger.isInfoEnabled())
 				logger.info("Grabbing JNLP from: " + website.toURI());
 
-			JNLPHandler jnlpHandler = new JNLPHandler(website.toURI());
+//			JNLPHandler jnlpHandler = new JNLPHandler(website.toURI());
+//
+//			jnlpHandler.parseJNLP();
+//
+//			jnlpHandler.runApplication(configuration);
 
-			jnlpHandler.parseJNLP();
+			final URI jnlpLocation = website.toURI();
 
-			jnlpHandler.runApplication(configuration);
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					FunStart4jGUI.createAndShowGUI(jnlpLocation, configuration);
+				}
+			});
+
 		} catch (URISyntaxException e) {
 			if (logger.isInfoEnabled())
 				logger.info("Exception while creating URI", e);
