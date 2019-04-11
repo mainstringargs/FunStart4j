@@ -6,13 +6,38 @@
  * user guide available at https://docs.gradle.org/4.3/userguide/java_library_plugin.html
  */
  
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+        // add additional dependencies here if you wish to reference instead of generate them (see example directory)
+    }
+}
+ 
+ 
 plugins {
     id 'org.unbroken-dome.xjc' version '1.4.0'
+    id 'maven-publish'
+    id 'io.codearte.nexus-staging' version '0.11.0'
 }
 
-// Apply the java-library plugin to add support for Java Library
-apply plugin: 'java-library'
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+
+// Apply the application plugin to add support for building an application
+apply plugin: 'application'
 apply plugin: 'eclipse'
+
+apply plugin: 'com.bmuschko.nexus'
+
+archivesBaseName = 'FunStart4j'
+group = 'io.github.mainstringargs'
+version = '1.0.0'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -38,7 +63,7 @@ xjcGenerate {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'io.github.mainstringargs.funstart4j.FunStart4j'
+        attributes 'Main-Class': 'io.github.mainstringargs.funstart4j.FunStart4jGUI'
     }
 	
 	from {
@@ -48,4 +73,65 @@ jar {
 
 compileJava {
     options.debug = true
+}
+
+modifyPom {
+    project {
+        name 'FunStart4j'
+        description 'A Java Webstart Alternative technology with support for JNLPs.'
+        url 'https://github.com/mainstringargs/FunStart4j'
+        inceptionYear '2019'
+        scm {
+            url 'https://github.com/mainstringargs/FunStart4j'
+            connection 'https://github.com/mainstringargs/FunStart4j.git'
+            developerConnection 'https://github.com/mainstringargs/FunStart4j.git'
+        }
+        licenses {
+            license {
+                name 'MIT License'
+                url 'https://opensource.org/licenses/MIT'
+                distribution 'repo'
+            }
+        }
+        developers {
+            developer {
+                id 'mainstringargs'
+                name 'main(String[] args)'
+                email 'mainstringargs@github.io'
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+ 
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+extraArchive {
+    sources = true
+    tests = true
+    javadoc = true
+}
+nexus {
+    sign = true
+    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+}
+
+nexusStaging {
+    packageGroup = "io.github.mainstringargs" //optional if packageGroup == project.getGroup()
+}
+
+
+// Define the main class for the application
+mainClassName = 'io.github.mainstringargs.funstart4j.FunStart4jGUI'
+
+run {
+
 }
