@@ -6,9 +6,11 @@ Since Java WebStart is is not included in OpenJDK based jvm installs and is bein
 ### FunStart4j Gradle Integration
 Add the following dependency to your build.gradle file:
 
+```
 dependencies {
 	compile "io.github.mainstringargs:FunStart4j:1.0.0"
 }
+```
 
 ### Building
 
