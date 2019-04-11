@@ -27,7 +27,9 @@ You can also just use the FunStart4j Jar itself, as it is a Fat-Jar and includes
 
 ### Using the FunStart4j GUI
 
-* Drop a JNLP URL into the text box
+![alt text](https://i.imgur.com/V4rftSc.png "FunStart4j Screenshot")
+
+* Drop a JNLP URL into the text box (For example:  https://docs.oracle.com/javase/tutorialJWS/samples/uiswing/ProgressBarDemoProject/ProgressBarDemo.jnlp)
 * Click "Start" which will start the JNLP parsing and download process
 * When the download process is finished, click "Run" to start the application
 
