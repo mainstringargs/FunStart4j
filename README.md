@@ -11,24 +11,37 @@ Run
 ./gradlew build
 ```
 
-This will produce a build/libs/FunStart4j.jar.
-Note:  This is a fat-jar with all dependencies included, so it can be moved and used from any location.
+### Running a Webstart Application using the FunStart4j GUI
 
+There are multiple ways to run thie application.
 
-### Running a Webstart Application
-To run a Webstart Application, pass in the URI of the JNLP as the last argument:
-
-For example:
+Using gradle, you can just run:
 
 ```
-java -jar build/libs/FunStart4j.jar https://worldwind.arc.nasa.gov/java/latest/webstart/AirspaceBuilder.jnlp
+./gradlew run
 ```
 
-### To pass properties and JVM configuration to the Webstart Application
+If you're using an actual release, you can extract the zip/tar and run bin/FunStart4j.bat or bin/FunStart4j (Linux)
+
+You can also just use the FunStart4j Jar itself, as it is a Fat-Jar and includes all of its dependencies.  Just double click on it and it should run.
+
+### Using the FunStart4j GUI
+
+* Drop a JNLP URL into the text box
+* Click "Start" which will start the JNLP parsing and download process
+* When the download process is finished, click "Run" to start the application
+
+### Running a Webstart Application using the Command Line
+
+The easiest way is to do something like this from the command line:
+
+java -jar build/libs/FunStart4j-X.X.X.jar https://worldwind.arc.nasa.gov/java/latest/webstart/AirspaceBuilder.jnlp
+
+### Running a Webstart Application using the Command Line w/ properties and JVM configuration
 Prepend properties and JVM configuration with -J.  For example:
 
 For example this will set the favorite.day property, the favorite.car property, the Maximum Heap size to 1024 megabytes, and print out garbage collection details for the Webstart Application:
 
 ```
-java -jar build/libs/FunStart4j.jar -J-Dfavorite.day=Saturday -J-Dfavorite.car="Nissan 350Z" -J-Xmx1024m -J-XX:+PrintGCDetails https://worldwind.arc.nasa.gov/java/latest/webstart/AirspaceBuilder.jnlp
+java build/libs/FunStart4j-X.X.X.jar -J-Dfavorite.day=Saturday -J-Dfavorite.car="Nissan 350Z" -J-Xmx1024m -J-XX:+PrintGCDetails https://worldwind.arc.nasa.gov/java/latest/webstart/AirspaceBuilder.jnlp
 ```
