@@ -135,3 +135,6 @@ mainClassName = 'io.github.mainstringargs.funstart4j.FunStart4jGUI'
 run {
 
 }
+
+buildScan { licenseAgreementUrl = 'https://gradle.com/terms-of-service'; licenseAgree = 'yes' }
+
