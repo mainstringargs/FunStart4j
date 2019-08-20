@@ -11,7 +11,7 @@ Add the following dependency to your build.gradle file:
 
 ```
 dependencies {
-	compile "io.github.mainstringargs:FunStart4j:1.0.0"
+	compile "io.github.mainstringargs:FunStart4j:1.1.0"
 }
 ```
 
